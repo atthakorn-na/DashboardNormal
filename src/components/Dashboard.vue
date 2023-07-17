@@ -27,7 +27,7 @@
   </v-table>     
       <v-row class="pagination">
         <v-col cols="12" class="text-center">
-          <v-pagination v-model="currentPage" :length="totalPages" @input="changePage"></v-pagination>
+          <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5" @input="changePage"></v-pagination>
         </v-col>
       </v-row>
   </v-card>
@@ -37,7 +37,7 @@
         <h1>Chart User Rating </h1>
         <!--refresh page  chart not show-->
 
-        <!-- <bar :data="chartData" :options="chartOptions" ></bar>   -->
+        <bar :data="chartData" :options="chartOptions" ></bar>  
       </v-card>
     </v-responsive>
   </v-container>
@@ -83,7 +83,7 @@ export default {
   },
   created() {
     this.fetchData()
-    this.populateChartData();
+    // this.populateChartData();
     // console.log(this.chartData.labels)
     // console.log(this.chartData.datasets[0].data)
   },
@@ -140,7 +140,6 @@ export default {
 .pagination {
   margin-top: 20px;
 }
-
 .pagination .v-pagination {
   display: inline-block;
   cursor: pointer;

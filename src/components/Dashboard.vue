@@ -27,7 +27,7 @@
   </v-table>     
       <v-row class="pagination">
         <v-col cols="12" class="text-center">
-          <v-pagination v-model="currentPage" :length="totalPages" :total-visible="5" @input="changePage"></v-pagination>
+          <v-pagination v-model="currentPage" :length="totalPages" :total-visible="6" @input="changePage"></v-pagination>
         </v-col>
       </v-row>
   </v-card>
@@ -37,7 +37,7 @@
         <h1>Chart User Rating </h1>
         <!--refresh page  chart not show-->
 
-        <bar :data="chartData" :options="chartOptions" ></bar>  
+        <bar v-if="loaded" :data="chartData" :options="chartOptions" ></bar>  
       </v-card>
     </v-responsive>
   </v-container>
@@ -59,6 +59,7 @@ export default {
       currentPage: 1,
       totalData: 0,
       itemsPerPage: 10,
+      loaded: false,
       chartData: {
         labels: [],
         datasets: [
@@ -87,10 +88,10 @@ export default {
     // console.log(this.chartData.labels)
     // console.log(this.chartData.datasets[0].data)
   },
-  created() {
-    this.fetchData()
-    // this.populateChartData();
+  mounted(){
+    this.populateChartData();
   },
+
   computed: {
   filteredList() {
     const start = (this.currentPage - 1) * this.itemsPerPage;
@@ -107,13 +108,8 @@ export default {
         const response = await axios.get(`https://jsonmock.hackerrank.com/api/food_outlets?page=${this.currentPage}`);
         this.list = response.data.data;
         this.totalData = response.data.total; // เพิ่มการอัพเดตค่า totalPages
-        
-        // if (this.list.length > 0) {
-        //   this.populateChartData();
-          // console.log(this.chartData.labels)
-          // console.log(this.chartData.datasets[0].data)
-        // }
         this.populateChartData();
+        this.loaded = true
       } catch (error) {
         console.error(error);
       }
@@ -126,8 +122,10 @@ export default {
     },
     changePage(page) {
       this.currentPage = page;
-      this.fetchData();
-      this.populateChartData();
+      this.loaded = false; // ตั้งค่า loaded เป็น false เพื่อแสดงว่ากำลังโหลดข้อมูลใหม่
+      this.fetchData().then(() => {
+        this.loaded = true; // ตั้งค่า loaded เป็น true เมื่อโหลดข้อมูลเสร็จสิ้น
+      });
     }
   }
 };

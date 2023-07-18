@@ -15,7 +15,7 @@
         </thead>
     <tbody>
       <tr class="da"
-      v-for="(item, index) in filteredList" :key="(this.currentPage - 1) * this.itemsPerPage + index"
+      v-for="item in filteredList" :key="item.id"
       >
       <td >{{ item.id }}</td>
         <td >{{ item.name }}</td>
@@ -37,7 +37,7 @@
         <h1>Chart User Rating </h1>
         <!--refresh page  chart not show-->
 
-        <bar v-if="loaded" :data="chartData" :options="chartOptions" ></bar>  
+        <bar v-if="loaded" :data="chartData" :options="chartOptions" :key="chartKey" ></bar>  
       </v-card>
     </v-responsive>
   </v-container>
@@ -59,6 +59,7 @@ export default {
       currentPage: 1,
       totalData: 0,
       itemsPerPage: 10,
+      chartKey: 0,
       loaded: false,
       chartData: {
         labels: [],
@@ -83,13 +84,9 @@ export default {
     };
   },
   created() {
-    this.fetchData()
+    this.fetchData(this.currentPage)
     // this.populateChartData();
-    // console.log(this.chartData.labels)
-    // console.log(this.chartData.datasets[0].data)
-  },
-  mounted(){
-    this.populateChartData();
+
   },
 
   computed: {
@@ -103,12 +100,13 @@ export default {
   }
 },
   methods: {
-    async fetchData() {
+    async fetchData(page) {
       try {
-        const response = await axios.get(`https://jsonmock.hackerrank.com/api/food_outlets?page=${this.currentPage}`);
+        const response = await axios.get(`https://jsonmock.hackerrank.com/api/food_outlets?page=${page}`);
         this.list = response.data.data;
         this.totalData = response.data.total; // เพิ่มการอัพเดตค่า totalPages
         this.populateChartData();
+        console.log(page)
         this.loaded = true
       } catch (error) {
         console.error(error);
@@ -117,6 +115,7 @@ export default {
     populateChartData() {
       this.chartData.labels = this.filteredList.map((item) => item.name);
       this.chartData.datasets[0].data = this.filteredList.map((item) => item.user_rating.average_rating);
+      this.chartKey++; // idk why
       console.log(this.chartData.labels)
       console.log(this.chartData.datasets[0].data)
     },
@@ -124,6 +123,7 @@ export default {
       this.currentPage = page;
       this.loaded = false; // ตั้งค่า loaded เป็น false เพื่อแสดงว่ากำลังโหลดข้อมูลใหม่
       this.fetchData().then(() => {
+        this.populateChartData();
         this.loaded = true; // ตั้งค่า loaded เป็น true เมื่อโหลดข้อมูลเสร็จสิ้น
       });
     }

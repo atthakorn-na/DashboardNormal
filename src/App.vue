@@ -1,4 +1,5 @@
 <template>
+  <RouterLink to="/about">About</RouterLink>
   <router-view />
 </template>
 

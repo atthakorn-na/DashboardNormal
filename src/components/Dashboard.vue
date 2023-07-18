@@ -30,6 +30,8 @@
           <v-pagination v-model="currentPage" :length="totalPages" :total-visible="6" @input="changePage"></v-pagination>
         </v-col>
       </v-row>
+      <!-- <RouterLink to="/about">Vdatable</RouterLink> -->
+      <br>
   </v-card>
   <!-- <bar :data="chartData" :options="chartOptions" ></bar> -->
   
@@ -84,11 +86,14 @@ export default {
     };
   },
   created() {
-    this.fetchData(this.currentPage)
-    // this.populateChartData();
+    // this.fetchData(this.currentPage);
+    // this.changePage(this.currentPage);
+    this.fetchData(this.currentPage);
+  },
+  mounted() {   
+    this.changePage(this.currentPage);
 
   },
-
   computed: {
   filteredList() {
     const start = (this.currentPage - 1) * this.itemsPerPage;
@@ -105,9 +110,11 @@ export default {
         const response = await axios.get(`https://jsonmock.hackerrank.com/api/food_outlets?page=${page}`);
         this.list = response.data.data;
         this.totalData = response.data.total; // เพิ่มการอัพเดตค่า totalPages
+        this.currentPage = response.data.page;
+        // console.log(this.currentPage)
+        
+        this.loaded = true        
         this.populateChartData();
-        console.log(page)
-        this.loaded = true
       } catch (error) {
         console.error(error);
       }
@@ -115,17 +122,16 @@ export default {
     populateChartData() {
       this.chartData.labels = this.filteredList.map((item) => item.name);
       this.chartData.datasets[0].data = this.filteredList.map((item) => item.user_rating.average_rating);
-      this.chartKey++; // idk why
-      console.log(this.chartData.labels)
-      console.log(this.chartData.datasets[0].data)
+      this.chartKey++; 
+      // console.log(this.chartData.labels)
+      // console.log(this.chartData.datasets[0].data)
     },
     changePage(page) {
       this.currentPage = page;
-      this.loaded = false; // ตั้งค่า loaded เป็น false เพื่อแสดงว่ากำลังโหลดข้อมูลใหม่
-      this.fetchData().then(() => {
-        this.populateChartData();
-        this.loaded = true; // ตั้งค่า loaded เป็น true เมื่อโหลดข้อมูลเสร็จสิ้น
-      });
+      this.loaded = false;
+      console.log(this.currentPage)
+      this.fetchData(this.currentPage); // เรียกใช้ fetchData เพื่อโหลดข้อมูลใหม่
+      this.populateChartData();
     }
   }
 };
